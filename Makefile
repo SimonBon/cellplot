@@ -1,8 +1,8 @@
 # Define the default message
-message ?= project update
+m ?= project update
 
 # Define the commit target
 commit:
 	git add .
-	git commit -m "$(message)"
+	git commit -m "$(m)"
 	git push
