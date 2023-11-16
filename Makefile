@@ -5,4 +5,4 @@ message ?= project update
 commit:
 	git add .
 	git commit -m "$(message)"
-	# git push
+	git push
