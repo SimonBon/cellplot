@@ -1,8 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import List, Union
+from typing import List, Union, Tuple
+import cv2
 
-def gridPlot(images, grid_size=(10, 10), layout="auto", channels_to_show: Union[None, List[int]] = None):
+COLOR_DICT = {1: (1,0,0), 2: (0,1,0), 3:(1,1,0), 4:(0, 1, 1)}
+
+def gridPlot(images, grid_size=(10, 10), layout="auto", channels_to_show: Union[None, List[int]] = None, plot_size: Tuple = (10, 10)):
     
     images = images[:grid_size[0]*grid_size[1]]
     
@@ -35,7 +38,7 @@ def gridPlot(images, grid_size=(10, 10), layout="auto", channels_to_show: Union[
             nrows = int(np.ceil(np.sqrt(n)))
             ncols = nrows
 
-    fig, axes = plt.subplots(nrows, ncols, figsize=(10, 10))
+    fig, axes = plt.subplots(nrows, ncols, figsize=plot_size)
     
     # Flatten the axes array and hide unused subplots
     axes_flat = axes.ravel()
@@ -56,3 +59,31 @@ def gridPlot(images, grid_size=(10, 10), layout="auto", channels_to_show: Union[
 # gridPlot(np.random.rand(20, 64, 64, 4), channels_to_show=[0, 2, 3])  # 4D array, custom channels
 # gridPlot(np.random.rand(20, 64, 64))  # 3D array
 # gridPlot([np.random.rand(64, 64, 4) for _ in range(20)], channels_to_show=[0, 1, 2])  # List of 3D arrays
+
+
+def draw_boxes_on_patch(patch, boxes, labels, scores=None, threshold=0.5, thickness=1):
+    """
+    Draws bounding boxes on the given image patch using cv2.
+
+    Parameters:
+    - patch: The image patch.
+    - boxes: List of bounding boxes. Each box is a tuple (min_y, min_x, max_y, max_x).
+    - labels: List of labels corresponding to each box.
+    - scores: List of confidence scores corresponding to each box.
+    - threshold: Minimum confidence score for a box to be drawn.
+    - thickness: Width of the box lines.
+
+    Returns:
+    - The image patch with drawn bounding boxes.
+    """
+    if isinstance(scores, type(None)):
+        scores = np.ones(len(labels))
+        
+    patch = np.ascontiguousarray(patch)
+    
+    for box, label, score in zip(boxes, labels, scores):
+        if score >= threshold:
+            min_x, min_y, max_x, max_y = min(box[0], box[2]), min(box[1], box[3]), max(box[0], box[2]), max(box[1], box[3])
+            cv2.rectangle(patch, (min_x, min_y), (max_x, max_y), COLOR_DICT[label], thickness)
+
+    return patch
