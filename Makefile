@@ -1,5 +1,5 @@
 # Define the default message
-message ?= default message
+message ?= project update
 
 # Define the commit target
 commit:
