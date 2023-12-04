@@ -17,9 +17,8 @@ def gridPlot(images, grid_size=(10, 10), layout="auto", channels_to_show: Union[
         n, w, h, c = images.shape
     elif isinstance(images, (list, tuple)):
         # Convert to list of numpy arrays
-        images = np.array([np.asarray(im) for im in images])
+        images = [np.asarray(im) for im in images]
         n = len(images)
-        w, h = images[0].shape[:2]
         c = images[0].shape[2] if images[0].ndim == 3 else 1
     else:
         raise TypeError("Invalid input type. Expected 4D/3D numpy array or list/tuple of 2D/3D arrays.")
