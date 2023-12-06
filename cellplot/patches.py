@@ -28,7 +28,9 @@ def gridPlot(images, grid_size=(10, 10), layout="auto", channels_to_show: Union[
         channels_to_show = [0, 1, 2] if c > 3 else np.arange(c)
     elif not all([isinstance(ch, int) and 0 <= ch < c for ch in channels_to_show]):
         raise ValueError(f"Invalid channel index in channels_to_show. Must be integers between 0 and {c-1}.")
-    
+    elif len(channels_to_show) not in [1, 3]:
+        raise ValueError(f"To show {len(channels_to_show)} number of channels is not implemented, either provide None, 1 or 3 channels.")
+
     nrows, ncols = grid_size
     
     # Determine the optimal grid size if n is less than nrows * ncols
