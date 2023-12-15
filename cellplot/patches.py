@@ -5,10 +5,16 @@ import cv2
 
 COLOR_DICT = {1: (1,0,0), 2: (0,1,0), 3:(1,1,0), 4:(0, 1, 1)}
 
-def gridPlot(images, grid_size=(10, 10), layout="auto", channels_to_show: Union[None, List[int]] = None, plot_size: Tuple = (10, 10)):
+def gridPlot(images, titles=None, grid_size=(10, 10), layout="auto", channels_to_show: Union[None, List[int]] = None, plot_size: Tuple = (10, 10)):
+    
+    if titles is not None and len(titles) != len(images):
+        raise ValueError("Length of titles list must match number of images.")
+    
+    if titles is None: 
+        titles = [""]*len(images)
     
     images = images[:grid_size[0]*grid_size[1]]
-    
+
     # Check if input is a numpy array
     if isinstance(images, np.ndarray):
         # Reshape 3D array to 4D with 1 channel if needed
@@ -46,14 +52,18 @@ def gridPlot(images, grid_size=(10, 10), layout="auto", channels_to_show: Union[
     for ax in axes_flat[n:]:
         ax.axis('off')
     
-    for ax, im in zip(axes_flat[:n], images):
+    
+    for ax, im, title in zip(axes_flat[:n], images, titles):
         if im.ndim == 3:  # Multi-channel image
             ax.imshow(im[..., channels_to_show])
         else:  # Single channel image
             ax.imshow(im, cmap='gray')
         ax.axis('off')
-
-    plt.subplots_adjust(hspace=0.1, wspace=0.1)
+        
+        if title:
+            ax.set_title(title, fontsize=10)
+    
+    plt.subplots_adjust(hspace=0.4, wspace=0.1)
     plt.show()
 
 # Example usage:
