@@ -60,7 +60,7 @@ def gridPlot(images, titles=None, grid_size=(10, 10), layout="auto", channels_to
             ax.imshow(im, cmap='gray')
         ax.axis('off')
         
-        if title:
+        if title is not None:
             ax.set_title(title, fontsize=10)
     
     plt.subplots_adjust(hspace=0.4, wspace=0.1)
