@@ -5,7 +5,7 @@ import cv2
 
 COLOR_DICT = {1: (1,0,0), 2: (0,1,0), 3:(1,1,0), 4:(0, 1, 1)}
 
-def gridPlot(images, titles=None, grid_size=(10, 10), layout="auto", channels_to_show: Union[None, List[int]] = None, plot_size: Tuple = (10, 10)):
+def gridPlot(images, titles=None, grid_size=(10, 10), layout="auto", channels_to_show: Union[None, List[int]] = None, plot_size: Tuple = (10, 10), hspace=0.4, vspace=0.4):
     
     if titles is not None and len(titles) != len(images):
         raise ValueError("Length of titles list must match number of images.")
@@ -63,7 +63,7 @@ def gridPlot(images, titles=None, grid_size=(10, 10), layout="auto", channels_to
         if title is not None:
             ax.set_title(title, fontsize=10)
     
-    plt.subplots_adjust(hspace=0.4, wspace=0.1)
+    plt.subplots_adjust(hspace=hspace, wspace=vspace)
     plt.show()
 
 # Example usage:
