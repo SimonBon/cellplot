@@ -25,7 +25,7 @@ def gridPlot(images, titles=None, grid_size=(10, 10), layout="auto", channels_to
         # Convert to list of numpy arrays
         images = [np.asarray(im) for im in images]
         n = len(images)
-        c = images[0].shape[2] if images[0].ndim == 3 else 1
+        c = max([im.shape[-1] for im in images]) if any([im.ndim == 3 for im in images]) else 1    
     else:
         raise TypeError("Invalid input type. Expected 4D/3D numpy array or list/tuple of 2D/3D arrays.")
     
