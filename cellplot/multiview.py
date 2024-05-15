@@ -3,6 +3,7 @@ from .utils import generate_rainbow_colors, convert_image_to_uint8
 from PIL import Image, ImageDraw, ImageFont
 from typing import List, Tuple, Optional, Literal
 import os
+from scipy.ndimage import zoom
 
 def create_multiview(
     image: np.ndarray, 
@@ -11,7 +12,9 @@ def create_multiview(
     shift_type: Literal["relative", "absolute"] = "relative", 
     margins: Tuple[float, float] = (0.1, 0.1), 
     fontsize: int = 15, 
-    channel_names: Optional[List[str]] = None):
+    channel_names: Optional[List[str]] = None,
+    image_scaling: Optional[float] = None,
+    channels_to_show: Optional[List[int]] = None):
     """
     Create a multiview image from a single multi-channel image.
 
@@ -38,6 +41,12 @@ def create_multiview(
     # Check if the image has three dimensions (height, width, channels)
     if image.ndim != 3:
         raise ValueError("Input image must have three dimensions (height, width, channels)")
+    
+    if channels_to_show is not None:
+        image = image[..., channels_to_show]
+
+    # here code that scales the image hgiven in the formal W H C to the size W*image_scaling H*image_scaling C
+    image = zoom(image, (image_scaling, image_scaling, 1), order=3)  # order=3 for cubic interpolation
 
     # Transpose the image to get channels in the first dimension
     transposed_image = image.transpose(2, 0, 1)
