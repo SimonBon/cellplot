@@ -5,7 +5,20 @@ import cv2
 
 COLOR_DICT = {1: (1,0,0), 2: (0,1,0), 3:(1,1,0), 4:(0, 1, 1)}
 
-def gridPlot(images, titles=None, grid_size=(10, 10), layout="auto", channels_to_show: Union[None, List[int]] = None, plot_size: Tuple = (10, 10), hspace=0.4, vspace=0.4):
+def gridPlot(
+    images, 
+    overlay=None, 
+    titles=None, 
+    grid_size=(10, 10), 
+    layout="auto", 
+    channels_to_show: Union[None, List[int]] = None, 
+    plot_size: Tuple = (10, 10), 
+    hspace=0.4, 
+    vspace=0.4,
+    alpha=0.2,
+    show_plot=True,
+    vmin=0,
+    vmax=1):
     
     if titles is not None and len(titles) != len(images):
         raise ValueError("Length of titles list must match number of images!")
@@ -14,6 +27,7 @@ def gridPlot(images, titles=None, grid_size=(10, 10), layout="auto", channels_to
         titles = [""]*len(images)
     
     images = images[:grid_size[0]*grid_size[1]]
+    overlay = overlay[:grid_size[0]*grid_size[1]] if overlay is not None else [None for _ in range(len(images))]
 
     # Check if input is a numpy array
     if isinstance(images, np.ndarray):
@@ -52,19 +66,26 @@ def gridPlot(images, titles=None, grid_size=(10, 10), layout="auto", channels_to
     for ax in axes_flat[n:]:
         ax.axis('off')
     
-    
-    for ax, im, title in zip(axes_flat[:n], images, titles):
+    for ax, im, over, title in zip(axes_flat[:n], images, overlay, titles):
         if im.ndim == 3:  # Multi-channel image
-            ax.imshow(im[..., channels_to_show])
+            ax.imshow(im[..., channels_to_show], vmin=vmin, vmax=vmax)
         else:  # Single channel image
-            ax.imshow(im, cmap='gray')
+            ax.imshow(im, cmap='gray', vmin=vmin, vmax=vmax)
+        if over is not None:
+            ax.imshow(over, alpha=alpha, cmap='gray', vmin=vmin, vmax=vmax)
+        
         ax.axis('off')
         
         if title is not None:
             ax.set_title(title, fontsize=10)
     
     plt.subplots_adjust(hspace=hspace, wspace=vspace)
-    plt.show()
+    
+    if show_plot:
+        plt.show()
+        
+    else:
+        return fig, axes
 
 # Example usage:
 # gridPlot(np.random.rand(20, 64, 64, 4), channels_to_show=[0, 2, 3])  # 4D array, custom channels

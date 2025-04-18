@@ -28,4 +28,4 @@ def convert_image_to_uint8(image: np.ndarray) -> np.ndarray:
         return (image).astype(np.uint8)
 
     # If the image is not in the expected range, raise an error
-    raise ValueError("Image values are not in the expected range (0-1 or already in uint8 format).")
+    raise ValueError(f"Image values are not in the expected range (0-1 or already in uint8 format). {image.min()} , {image.max()}")

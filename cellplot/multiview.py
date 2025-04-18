@@ -13,8 +13,9 @@ def create_multiview(
     margins: Tuple[float, float] = (0.1, 0.1), 
     fontsize: int = 15, 
     channel_names: Optional[List[str]] = None,
-    image_scaling: Optional[float] = None,
-    channels_to_show: Optional[List[int]] = None):
+    image_scaling: Optional[float] = 1,
+    channels_to_show: Optional[List[int]] = None,
+    alpha_value: Optional[int] = 255):
     """
     Create a multiview image from a single multi-channel image.
 
@@ -46,7 +47,8 @@ def create_multiview(
         image = image[..., channels_to_show]
 
     # here code that scales the image hgiven in the formal W H C to the size W*image_scaling H*image_scaling C
-    image = zoom(image, (image_scaling, image_scaling, 1), order=3)  # order=3 for cubic interpolation
+    if image_scaling is not None:
+        image = zoom(image, (image_scaling, image_scaling, 1), order=0)  # order=3 for cubic interpolation
 
     # Transpose the image to get channels in the first dimension
     transposed_image = image.transpose(2, 0, 1)
@@ -84,25 +86,34 @@ def create_multiview(
     margin_x, margin_y = margins[0] * needed_x, margins[1] * needed_y
     canvas_size = (int(needed_x + margin_x), int(needed_y + margin_y))
 
-    # Create a white canvas
-    canvas = Image.new('RGB', canvas_size, 'white')
+    canvas = Image.new('RGBA', canvas_size, 'white')
     draw = ImageDraw.Draw(canvas)
-    
+
     # Process each channel
     for n, (channel, color) in enumerate(zip(transposed_image, colors)):
-        
         # Convert single channel to RGB
-        rgb_channel = np.stack((channel,) * 3, axis=-1)/255
+        rgb_channel = np.stack((channel,) * 3, axis=-1) / 255
         color_array = np.full(rgb_channel.shape, color, dtype=np.uint8)
-        colored_channel = Image.fromarray((rgb_channel * color_array).astype(np.uint8))
+        colored_channel = Image.fromarray((rgb_channel * color_array).astype(np.uint8)).convert('RGBA')
+
+        # Add alpha channel
+        alpha = Image.new('L', colored_channel.size, alpha_value)
+        colored_channel.putalpha(alpha)
 
         # Calculate position for each channel image
         image_position = (int(canvas.size[0] - im_width - n * x_shift - margin_x // 2), int(margin_y // 2 + n * y_shift))
-        canvas.paste(colored_channel, image_position)
-        
+
+        # Create a temporary image to handle alpha compositing
+        temp_image = Image.new('RGBA', canvas.size)
+        temp_image.paste(colored_channel, image_position, colored_channel)
+
+        # Alpha composite the temporary image with the canvas
+        canvas = Image.alpha_composite(canvas, temp_image)
+
         # Add channel names if provided
         if channel_names is not None:
+            font = ImageFont.load_default()  # Use default font or load a specific one if needed
             text_position = (int(canvas.size[0] - margin_x // 2 - n * x_shift + fontsize // 2), int(margin_y // 2 + im_height + n * y_shift))
             draw.text(text_position, channel_names[n], fill="black", font=font, anchor="lb")
-            
+
     return canvas
