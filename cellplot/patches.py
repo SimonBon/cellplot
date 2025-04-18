@@ -5,6 +5,7 @@ import cv2
 
 COLOR_DICT = {1: (1,0,0), 2: (0,1,0), 3:(1,1,0), 4:(0, 1, 1)}
 
+
 def gridPlot(
     images, 
     overlay=None, 
