@@ -19,7 +19,8 @@ def gridPlot(
     alpha=0.2,
     show_plot=True,
     vmin=0,
-    vmax=1):
+    vmax=1,
+    tight=False):
     
     if titles is not None and len(titles) != len(images):
         raise ValueError("Length of titles list must match number of images!")
@@ -79,8 +80,10 @@ def gridPlot(
         
         if title is not None:
             ax.set_title(title, fontsize=10)
-    
-    plt.subplots_adjust(hspace=hspace, wspace=vspace)
+    if tight:
+        plt.subplots_adjust(hspace=-0.01, wspace=-0.01)
+    else:
+        plt.subplots_adjust(hspace=hspace, wspace=vspace)
     
     if show_plot:
         plt.show()
